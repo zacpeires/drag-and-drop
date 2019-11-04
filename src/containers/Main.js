@@ -2,22 +2,20 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const Container = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
+
 `;
 
 const Draggable = styled.div.attrs({
-  style: ({ top, left }) => ({
+  style: ({ top, left, height, width }) => ({
       top: top ? top : null,
-      left: left ? left : null
+      left: left ? left : null,
+      height: height ? `${height}px` : null,
+      width: width ? `${width}px` : null
   }),
 })`
-    height: ${props => props.height}px;
-    width: ${props => props.width}px;
-    top: unset;
-    left: unset;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     position: absolute;
     background-color: pink;
     cursor: ${props => props.cursor}
