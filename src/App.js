@@ -1,11 +1,22 @@
 import React from 'react';
-import Draggable from './containers/Draggable';
+import Custom from './containers/Custom'
 import './index.css'
+import SizeObserver from './containers/SizeObserver';
+import styled from 'styled-components';
+import Absolute from './containers/Absolute';
+
+
 
 const App = () => {
   return (
     <>
-      <Draggable />
+       {/* <Absolute /> */}
+       
+      {/* <InteractJS /> */}
+      <Custom />
+      {/* <SizeObserver name="test">
+         {id => <Box id={id}>Box</Box>}
+       </SizeObserver> */}
     </>
   );
 }
