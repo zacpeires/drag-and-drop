@@ -59,7 +59,7 @@ export default () => {
 
   const handleMouseOver = (e) => {
     const bounds = getBound()
-    if ((e.clientX - bounds.left) <= 30 &&  (e.clientY - bounds.top <= 30)) {
+    if ((bounds.left + bounds.width - e.clientX) <= 30 &&  (bounds.top + bounds.height - e.clientY <= 30)) {
       setCursor('grabbing')
       setFunctionality('resize')
     } else {
@@ -71,15 +71,11 @@ export default () => {
   const handleMouseDown = (e) => {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
-    const bounds = getBound()
     e = e || window.event;
     e.preventDefault();
     e.persist();
     pos3 = e.clientX;
     pos4 = e.clientY;
-    if (functionality === 'resize') {
-    setOffset(e.clientX - bounds.left)
-    }
   }
 
 
@@ -94,8 +90,8 @@ export default () => {
     pos4 = e.clientY;
     const element = document.getElementById('draggable');
     // set the element's new position:
-    if (functionality === 'drag' && e.clientX !== 0) {
-      dragElement(element, pos2, pos1)
+    if (functionality === 'drag') {
+    dragElement(element, pos2, pos1)
     }
 
     if (functionality === 'resize') {
@@ -104,8 +100,8 @@ export default () => {
   };
 
   const resizeElement = (x, y, boundary) => {
-    setWidth(boundary.left - x + boundary.width)
-    setHeight((boundary.left - x + boundary.width) * 9 / 16)
+    setWidth(x - boundary.left)
+    setHeight((x - boundary.left) * 9 / 16)
   }
 
   const dragElement = (element, top, left) => {
