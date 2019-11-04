@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import ResizeIcon from '../components/ResizeIcon';
 
 const Container = styled.div`
 
@@ -19,11 +20,18 @@ const Draggable = styled.div.attrs({
     position: absolute;
     background-color: pink;
     cursor: ${props => props.cursor}
-
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    overflow: hidden;
 `
 
-// bottom to specific size, would be entire screen height - top - desired size
-// left would be, entire screen width -right side - desired size
+const Video = styled.video`
+  height 100%;
+  width: 100%;
+` 
+
+
 
 export default () => {  
   const [top, setTop] = useState(null);
@@ -32,7 +40,6 @@ export default () => {
   const [height, setHeight] = useState(250 * 9 / 16)
   const [cursor, setCursor] = useState('move');
   const [functionality, setFunctionality] = useState('drag');
-  const [offset, setOffset] = useState(0)
 
   let pos1 = 0;
   let pos2 = 0;
@@ -52,7 +59,6 @@ export default () => {
       height: rect.height || rect.bottom - rect.top
     };
   }
-
 
 
   const handleMouseOver = (e) => {
@@ -89,23 +95,31 @@ export default () => {
     const element = document.getElementById('draggable');
     // set the element's new position:
     if (functionality === 'drag') {
-    dragElement(element, pos2, pos1)
+    dragElement(element, pos2, pos1, bounds)
     }
 
     if (functionality === 'resize') {
-      resizeElement(pos3, pos4, bounds);
+      resizeElement(pos3, bounds);
     }
   };
 
-  const resizeElement = (x, y, boundary) => {
+  const resizeElement = (x, boundary) => {
+    if (x - boundary.left > 100)  {
     setWidth(x - boundary.left)
     setHeight((x - boundary.left) * 9 / 16)
+    }
   }
 
-  const dragElement = (element, top, left) => {
-    const bounds = getBound();
-    setTop(`${element.offsetTop - top}px`)
-    setLeft(`${element.offsetLeft - left}px`)
+  const dragElement = (element, y, x, boundary) => {
+    console.log(boundary.top)
+    if (boundary.left > 0 & boundary.top > 0) {
+    setTop(`${element.offsetTop - y}px`)
+    setLeft(`${element.offsetLeft - x}px`)
+    } else if (boundary.left <= 0) {
+      setLeft(`${width / 2 + 1}px`)
+    } else if (boundary.top <= 0) {
+      setTop(`${height / 2 + 1}px`)
+    } 
   }
 
   const handleMouseUp = () => {
@@ -114,7 +128,7 @@ export default () => {
   };
 
   return (
-    <Container>
+    <>
       <Draggable id='draggable'
       onMouseDown={handleMouseDown} top={top}
       onMouseMove={handleMouseOver}
@@ -122,7 +136,11 @@ export default () => {
       height={height}
       left={left}
       cursor={cursor}
-      />
-    </Container>
+      >
+        <ResizeIcon />
+    
+        {/* <Video src={"http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"} controls/> */}
+      </Draggable>
+    </>
   )
 }

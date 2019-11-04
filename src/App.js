@@ -3,8 +3,6 @@ import Main from '././containers/Main'
 import './index.css'
 
 
-
-
 const App = () => {
   return (
     <>
