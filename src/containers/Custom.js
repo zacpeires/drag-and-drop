@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+`;
+
 const Draggable = styled.div.attrs({
   style: ({ top, left }) => ({
       top: top ? top : null,
       left: left ? left : null
   }),
 })`
-    height: 150px;
-    width: 250px;
+    height: ${props => props.height}px;
+    width: ${props => props.width}px;
+    top: unset;
+    left: unset;
     position: absolute;
     background-color: pink;
-    cursor: ${(props) => props.cursor}
+    cursor: ${props => props.cursor}
 
 `
 
@@ -21,8 +30,12 @@ const Draggable = styled.div.attrs({
 export default () => {  
   const [top, setTop] = useState(null);
   const [left, setLeft] = useState(null);
+  const [width, setWidth] = useState(250)
+  const [height, setHeight] = useState(250 * 9 / 16)
   const [cursor, setCursor] = useState('move');
   const [functionality, setFunctionality] = useState('drag');
+  const [offset, setOffset] = useState(0)
+
   let pos1 = 0;
   let pos2 = 0;
   let pos3 = 0;
@@ -42,6 +55,8 @@ export default () => {
     };
   }
 
+
+
   const handleMouseOver = (e) => {
     const bounds = getBound()
     if ((e.clientX - bounds.left) <= 30 &&  (e.clientY - bounds.top <= 30)) {
@@ -54,34 +69,47 @@ export default () => {
   }
 
   const handleMouseDown = (e) => {
-    const bounds = getBound() 
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
+    const bounds = getBound()
     e = e || window.event;
     e.preventDefault();
     e.persist();
     pos3 = e.clientX;
     pos4 = e.clientY;
+    if (functionality === 'resize') {
+    setOffset(e.clientX - bounds.left)
+    }
   }
 
 
   const handleMouseMove = (e) => {
     e = e || window.event;
     e.preventDefault();
+    const bounds = getBound()
     // calculate the new cursor position:
     pos1 = pos3 - e.clientX;
     pos2 = pos4 - e.clientY;
     pos3 = e.clientX;
     pos4 = e.clientY;
     const element = document.getElementById('draggable');
-
     // set the element's new position:
-    if (functionality === 'drag') {
+    if (functionality === 'drag' && e.clientX !== 0) {
       dragElement(element, pos2, pos1)
+    }
+
+    if (functionality === 'resize') {
+      resizeElement(pos3, pos4, bounds);
     }
   };
 
+  const resizeElement = (x, y, boundary) => {
+    setWidth(boundary.left - x + boundary.width)
+    setHeight((boundary.left - x + boundary.width) * 9 / 16)
+  }
+
   const dragElement = (element, top, left) => {
+    const bounds = getBound();
     setTop(`${element.offsetTop - top}px`)
     setLeft(`${element.offsetLeft - left}px`)
   }
@@ -92,13 +120,15 @@ export default () => {
   };
 
   return (
-    <>
+    <Container>
       <Draggable id='draggable'
       onMouseDown={handleMouseDown} top={top}
       onMouseMove={handleMouseOver}
+      width={width}
+      height={height}
       left={left}
       cursor={cursor}
       />
-    </>
+    </Container>
   )
 }
