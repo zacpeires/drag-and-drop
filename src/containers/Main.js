@@ -1,45 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import ResizeIcon from '../components/ResizeIcon';
 
 const Container = styled.div`
-
+  background-image: url('https://cdn.pizap.com/pizapfiles/images/photo_backgrounds_textures_app05.jpg');
+  height: 100vh;
+  background-repeat: no-repeat;
+  background-size: cover;
 `;
 
 const Draggable = styled.div.attrs({
   style: ({ top, left, height, width }) => ({
-      top: top ? top : null,
-      left: left ? left : null,
-      height: height ? `${height}px` : null,
-      width: width ? `${width}px` : null
+    top: top ? top : null,
+    left: left ? left : null,
+    height: height ? `${height}px` : null,
+    width: width ? `${width}px` : null,
   }),
 })`
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     position: absolute;
-    background-color: pink;
     cursor: ${props => props.cursor}
+    background: white;
     display: flex;
     align-items: flex-end;
     justify-content: flex-end;
     overflow: hidden;
-`
+`;
 
 const Video = styled.video`
   height 100%;
   width: 100%;
-` 
+`;
 
-
-
-export default () => {  
+export default () => {
   const [top, setTop] = useState(null);
   const [left, setLeft] = useState(null);
-  const [width, setWidth] = useState(250)
-  const [height, setHeight] = useState(250 * 9 / 16)
+  const [width, setWidth] = useState(250);
+  const [height, setHeight] = useState((250 * 9) / 16);
   const [cursor, setCursor] = useState('move');
   const [functionality, setFunctionality] = useState('drag');
+  const videoRef = useRef(null)
 
   let pos1 = 0;
   let pos2 = 0;
@@ -48,7 +50,7 @@ export default () => {
 
   const getBound = () => {
     const component = document.getElementById('draggable');
-    if (!component) { 
+    if (!component) {
       return {};
     }
     const rect = component.getBoundingClientRect();
@@ -56,23 +58,27 @@ export default () => {
       left: rect.left,
       top: rect.top + window.scrollY,
       width: rect.width || rect.right - rect.left,
-      height: rect.height || rect.bottom - rect.top
+      height: rect.height || rect.bottom - rect.top,
+      right: rect.right,
+      bottom: rect.bottom,
     };
-  }
+  };
 
-
-  const handleMouseOver = (e) => {
-    const bounds = getBound()
-    if ((bounds.left + bounds.width - e.clientX) <= 30 &&  (bounds.top + bounds.height - e.clientY <= 30)) {
-      setCursor('grabbing')
-      setFunctionality('resize')
+  const handleMouseOver = e => {
+    const bounds = getBound();
+    if (
+      bounds.left + bounds.width - e.clientX <= 30 &&
+      bounds.top + bounds.height - e.clientY <= 30
+    ) {
+      setCursor('grabbing');
+      setFunctionality('resize');
     } else {
-      setCursor('move')
-      setFunctionality('drag')
+      setCursor('move');
+      setFunctionality('drag');
     }
-  }
+  };
 
-  const handleMouseDown = (e) => {
+  const handleMouseDown = e => {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
     e = e || window.event;
@@ -80,13 +86,12 @@ export default () => {
     e.persist();
     pos3 = e.clientX;
     pos4 = e.clientY;
-  }
+  };
 
-
-  const handleMouseMove = (e) => {
+  const handleMouseMove = e => {
     e = e || window.event;
     e.preventDefault();
-    const bounds = getBound()
+    const bounds = getBound();
     // calculate the new cursor position:
     pos1 = pos3 - e.clientX;
     pos2 = pos4 - e.clientY;
@@ -95,7 +100,7 @@ export default () => {
     const element = document.getElementById('draggable');
     // set the element's new position:
     if (functionality === 'drag') {
-    dragElement(element, pos2, pos1, bounds)
+      dragElement(element, pos2, pos1, bounds);
     }
 
     if (functionality === 'resize') {
@@ -104,43 +109,81 @@ export default () => {
   };
 
   const resizeElement = (x, boundary) => {
-    if (x - boundary.left > 100)  {
-    setWidth(x - boundary.left)
-    setHeight((x - boundary.left) * 9 / 16)
+    if (x - boundary.left > 100) {
+      setWidth(x - boundary.left);
+      setHeight(((x - boundary.left) * 9) / 16);
     }
-  }
+  };
 
   const dragElement = (element, y, x, boundary) => {
-    console.log(boundary.top)
-    if (boundary.left > 0 & boundary.top > 0) {
-    setTop(`${element.offsetTop - y}px`)
-    setLeft(`${element.offsetLeft - x}px`)
+    const pageWidth = window.innerWidth;
+    const pageHeight = window.innerHeight;
+    if (
+      boundary.left > 0 &&
+      boundary.top > 0 &&
+      boundary.right < pageWidth &&
+      boundary.bottom < pageHeight
+    ) {
+      setTop(`${element.offsetTop - y}px`);
+      setLeft(`${element.offsetLeft - x}px`);
     } else if (boundary.left <= 0) {
-      setLeft(`${width / 2 + 1}px`)
+      setLeft(`${width / 2 + 1}px`);
     } else if (boundary.top <= 0) {
-      setTop(`${height / 2 + 1}px`)
-    } 
-  }
+      setTop(`${height / 2 + 1}px`);
+    } else if (boundary.right >= pageWidth) {
+      setLeft(pageWidth - boundary.width / 2 - 1);
+    } else if (boundary.bottom >= pageHeight) {
+      setTop(pageHeight - boundary.height / 2 - 1);
+    }
+  };
 
   const handleMouseUp = () => {
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('mouseup', handleMouseUp);
   };
 
+  const getMedia = async constraints => {
+    let stream = null;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia(constraints);
+      videoRef.current.srcObject = stream;
+    } catch (err) {
+      console.log(err.message)
+    }
+  };
+  useEffect(() => {
+    navigator.mediaDevices
+      .enumerateDevices()
+      .then(function(devices) {
+        devices.forEach(function(device) {
+          console.log(
+            device.kind + ': ' + device.label + ' id = ' + device.deviceId
+          );
+        });
+      })
+      .catch(function(err) {
+        console.log(err.name + ': ' + err.message);
+      });
+
+    getMedia({ video: true });
+  }, []);
+
   return (
-    <>
-      <Draggable id='draggable'
-      onMouseDown={handleMouseDown} top={top}
-      onMouseMove={handleMouseOver}
-      width={width}
-      height={height}
-      left={left}
-      cursor={cursor}
+    <Container>
+      <Draggable
+        id='draggable'
+        onMouseDown={handleMouseDown}
+        top={top}
+        onMouseMove={handleMouseOver}
+        width={width}
+        height={height}
+        left={left}
+        cursor={cursor}
       >
         <ResizeIcon />
-    
-        {/* <Video src={"http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"} controls/> */}
+
+        <Video ref={videoRef} autoPlay={true} id='videoElement' />
       </Draggable>
-    </>
-  )
-}
+    </Container>
+  );
+};
