@@ -6,7 +6,7 @@ const ResizeIconContainer = styled.div`
   position: absolute;
   bottom: -5px;
   right: -15px;
-  width: 50px;
+  width: 55px;
   height: 20px;
   transform: rotate(-45deg)
 `
@@ -14,7 +14,7 @@ const ResizeLine = styled.div`
   width: 100%;
   background-color: black;
   height: 1px;
-  margin-bottom: 7px;
+  margin-bottom: 5px;
   opacity: 0.2;
 `
 

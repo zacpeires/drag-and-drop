@@ -2,13 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import ResizeIcon from '../components/ResizeIcon';
 
-const Container = styled.div`
-  background-image: url('https://cdn.pizap.com/pizapfiles/images/photo_backgrounds_textures_app05.jpg');
-  height: 100vh;
-  background-repeat: no-repeat;
-  background-size: cover;
-`;
-
 const Draggable = styled.div.attrs({
   style: ({ top, left, height, width }) => ({
     top: top ? top : null,
@@ -21,16 +14,18 @@ const Draggable = styled.div.attrs({
     left: 50%;
     transform: translate(-50%, -50%);
     position: absolute;
+    z-index: 10;
     cursor: ${props => props.cursor}
     background: white;
     display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
+    
 `;
 
 const Video = styled.video`
-  height 100%;
+  height 135%;
   width: 100%;
 `;
 
@@ -153,17 +148,17 @@ export default () => {
   };
   useEffect(() => {
 
-      const constraints = { video: {
-        width: { min: 1024, ideal: 1920 },
-        height: { min: 776, ideal: 1080 },      
-        deviceId: 'df940085e6ff5a844a8d4cba235310bd208abc44b16297d81fc7adb3cde638af'} 
-      }
+      // const constraints = { video: {
+      //   width: { min: 1024, ideal: 1920 },
+      //   height: { min: 776, ideal: 1080 },      
+      //   deviceId: 'df940085e6ff5a844a8d4cba235310bd208abc44b16297d81fc7adb3cde638af'} 
+      // }
 
-    getMedia(constraints);
+    getMedia({video: true});
   }, []);
 
   return (
-    <Container>
+    <>
       <Draggable
         id='draggable'
         onMouseDown={handleMouseDown}
@@ -178,6 +173,6 @@ export default () => {
 
         <Video ref={videoRef} autoPlay={true} id='videoElement' />
       </Draggable>
-    </Container>
+    </>
   );
 };
