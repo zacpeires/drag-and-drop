@@ -152,20 +152,14 @@ export default () => {
     }
   };
   useEffect(() => {
-    navigator.mediaDevices
-      .enumerateDevices()
-      .then(function(devices) {
-        devices.forEach(function(device) {
-          console.log(
-            device.kind + ': ' + device.label + ' id = ' + device.deviceId
-          );
-        });
-      })
-      .catch(function(err) {
-        console.log(err.name + ': ' + err.message);
-      });
 
-    getMedia({ video: true });
+      const constraints = { video: {
+        width: { min: 1024, ideal: 1920 },
+        height: { min: 776, ideal: 1080 },      
+        deviceId: 'df940085e6ff5a844a8d4cba235310bd208abc44b16297d81fc7adb3cde638af'} 
+      }
+
+    getMedia(constraints);
   }, []);
 
   return (
