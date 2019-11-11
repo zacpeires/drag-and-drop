@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import ResizeIcon from '../components/ResizeIcon';
 
+// look at offset from top and workout limitations on resizing !!
+
 const Draggable = styled.div.attrs({
   style: ({ top, left, height, width }) => ({
     top: top ? top : null,
@@ -104,20 +106,30 @@ export default () => {
   };
 
   const resizeElement = (x, boundary) => {
-    if (x - boundary.left > 100) {
+    const pageWidth = window.innerWidth;
+    const pageHeight = window.innerHeight;
+    if (x - boundary.left > 100 &&    boundary.left >= 0 &&
+      boundary.top >= 0 &&
+      boundary.right <= pageWidth &&
+      boundary.bottom <= pageHeight) {
       setWidth(x - boundary.left);
       setHeight(((x - boundary.left) * 9) / 16);
+    } else if (boundary.left <= 0) {
+      setLeft(`${width / 2 + 1}px`);
+    } else if (boundary.top <= 0) {
+      setTop(`${height / 2 + 1}px`);
     }
   };
 
   const dragElement = (element, y, x, boundary) => {
     const pageWidth = window.innerWidth;
     const pageHeight = window.innerHeight;
+    console.log(pageWidth, boundary.width, boundary)
     if (
-      boundary.left > 0 &&
-      boundary.top > 0 &&
-      boundary.right < pageWidth &&
-      boundary.bottom < pageHeight
+      boundary.left >= 0 &&
+      boundary.top >= 0 &&
+      boundary.right <= pageWidth &&
+      boundary.bottom <= pageHeight
     ) {
       setTop(`${element.offsetTop - y}px`);
       setLeft(`${element.offsetLeft - x}px`);
@@ -148,13 +160,13 @@ export default () => {
   };
   useEffect(() => {
 
-      // const constraints = { video: {
-      //   width: { min: 1024, ideal: 1920 },
-      //   height: { min: 776, ideal: 1080 },      
-      //   deviceId: 'df940085e6ff5a844a8d4cba235310bd208abc44b16297d81fc7adb3cde638af'} 
-      // }
+      const constraints = { video: {
+        width: { min: 1024, ideal: 1920 },
+        height: { min: 776, ideal: 1080 },      
+        deviceId: 'df940085e6ff5a844a8d4cba235310bd208abc44b16297d81fc7adb3cde638af'} 
+      }
 
-    getMedia({video: true});
+    getMedia(constraints);
   }, []);
 
   return (
@@ -170,7 +182,6 @@ export default () => {
         cursor={cursor}
       >
         <ResizeIcon />
-
         <Video ref={videoRef} autoPlay={true} id='videoElement' />
       </Draggable>
     </>

@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Main from './containers/Main'
 import FileUpload from './components/FileUpload';
-import styled from 'styled-components';
 import './index.css'
 
 

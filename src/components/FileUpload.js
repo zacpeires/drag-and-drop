@@ -20,8 +20,13 @@ const StyledLabel = styled.label`
   color: white;
   font-family: arial;
   width: max-content;
-  padding: 15px 20px;
-  font-weight: 500;
+  padding: 20px;
+  width: 20px;
+  height: 20px;
+  font-size: 35px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100%;    
   display: flex;
   z-index: 5;
   display: none;
@@ -69,18 +74,28 @@ export default () => {
         accept='image/png, image/jpeg'
         onChange={handleChange}
       />
-      <BackgroundImage
-        ref={imageRef}
-        loaded={loaded}
-        onMouseOver={() => setShowUploadButton(false)}
-      />
+      {loaded ? (
+        <BackgroundImage
+          ref={imageRef}
+          loaded={loaded}
+          onMouseOver={() => setShowUploadButton(false)}
+        />
+      ) : (
+        <BackgroundImage
+          ref={imageRef}
+          src={defaultBackground}
+          loaded={loaded}
+          onMouseOver={() => setShowUploadButton(false)}
+        />
+      )}
+
       <ButtonContainer onMouseOver={() => setShowUploadButton(true)}>
         <StyledLabel
-          for='file'
+          htmlFor='file'
           loaded={loaded}
           showUploadButton={showUploadButton}
         >
-          Choose a file...
+          +
         </StyledLabel>
       </ButtonContainer>
     </>
